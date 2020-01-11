@@ -267,6 +267,7 @@ RA = ~RB <=> RA = 1 - RB
 |      | 1 : ldb.i ldw.i ldd.i ldq.i | 01 : word  |         |         |
 |      |                             | 10 : dword |         |         |
 |      |                             | 11 : qword |         |         |
+
 note:  
 bp(stack base pointer) as the byte/word/dword/qword pointer, offset step is 1/2/4/8
 
@@ -318,6 +319,7 @@ void ldx(){
 |        | 1 : ldb.i ldw.i ldd.i ldq.i | 01 : word  |         |         | 1 : ldx reg, reg[im + rt] |
 |        |                             | 10 : dword |         |         |                           |
 |        |                             | 11 : qword |         |         |                           |
+
 note:  
 the source register as the byte/word/dword/qword base pointer, offset step is 1/2/4/8
 
@@ -358,6 +360,7 @@ the source register as the byte/word/dword/qword base pointer, offset step is 1/
 |        | 101 : ifnc/ifno     | not carry or not overflow      | signed  |
 |        | 110 : ifuo          | under overflow                 | signed  |
 |        | 111 : ifdo          | up overflow                    | signed  |
+
 note:  
 ip += imm(signed) * 2(two bytes/instruction) when not match condition
 
