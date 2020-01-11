@@ -1,109 +1,226 @@
+```C++
+/*
+                  _oo0oo_
+                 o8888888o
+                 88" . "88
+                 (| -_- |)
+                 0\  =  /0
+               ___/`---'\___
+             .' \\|     |// '.
+            / \\|||  :  |||// \
+           / _||||| -:- |||||- \
+          |   | \\\  -  /// |   |
+          | \_|  ''\---/''  |_/ |
+          \  .-\__  '-'  ___/-. /
+        ___'. .'  /--.--\  `. .'___
+     ."" '<  `.___\_<|>_/___.' >' "".
+    | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+    \  \ `_.   \_ __\ /__ _/   .-` /  /
+=====`-.____`.___ \_____/___.-`___.-'=====
+                  `=---='
+               作者原本生活富裕
+               有一天他离开凡尘
+         在一棵菩提树下顿悟了程序的真谛
+           那就是不写代码就不会有BUG
+                  因执念故
+               时空亦为之轮回..
+
+        func binary_search(
+            rt.o    match,
+            r1.o    less_then_target,
+            r2.o    grater_then_target,
+            r3.i    sequence,
+            r4.i    start,
+            r5.i    length,
+            r6.i    value
+        )
+            start   left
+            r8      backup
+            r9      cmp
+            ra      center
+            rb      right
+
+            sub     rt, start, length
+            ifnae   endif.not.found
+            mvd     right, length
+            mvd     center, length
+            shr     center, 1
+            sub     right, 1
+            jmp     loop.find.body
+        loop.find.next:
+            add     rt, left, right
+            shr     center, rt, 1
+        loop.find.body:
+            sub     rt, right, left
+            ifa     endlp.find
+            mvd     rt, center
+            mvd     backup, center
+            ldd.u   rt, sequence[rt]
+            sub     cmp, rt, value
+            ife     endif.match
+            mvd     match, center
+            ret
+        endif.match:
+            ifa     endif.above
+            sub     center, 1
+            mvd     right, center
+            jmp     loop.find.next
+        endif.above:
+            add     center, 1
+            mvd     left, center
+            jmp     loop.find.next
+        endlp.find:
+            mov     rt, -1
+            sub     cmp, 0
+            ifa     endif.grater_then_target
+            mvd     grater_then_target, backup
+            sub     backup, 1
+            ifae    token.over
+            mvd     less_then_target = backup
+            jmp     token.over
+        endif.grater_then_target:
+            ifb     token.over
+            mvd     less_then_target, backup
+            add     backup, 1
+            sub     length, backup
+            ifa     token.over
+            mvd     grater_then_target, backup
+            jmp     token.over
+        endif.not.found:
+            mov     rt, -1
+            mov     r1, -1
+            mov     r2, -1
+        token.over:
+            ret
+*/
 ```
-func binary_search(
-    rt.o    match,
-    r1.o    less_then_target,
-    r2.o    grater_then_target,
-    r3.i    sequence,
-    r4.i    start,
-    r5.i    length,
-    r6.i    value
-)
-    start   left
-    r8      backup
-    r9      cmp
-    ra      center
-    rb      right
-
-    sub     rt, start, length
-    ifnae   endif.not.found
-    mvd     right, length
-    mvd     center, length
-    shr     center, 1
-    sub     right, 1
-    jmp     loop.find.body
-loop.find.next:
-    add     rt, left, right
-    shr     center, rt, 1
-loop.find.body:
-    sub     rt, right, left
-    ifa     endlp.find
-    mvd     rt, center
-    mvd     backup, center
-    ldd.u   rt, sequence[rt]
-    sub     cmp, rt, value
-    ife     endif.match
-    mvd     match, center
-    ret
-endif.match:
-    ifa     endif.above
-    sub     center, 1
-    mvd     right, center
-    jmp     loop.find.next
-endif.above:
-    add     center, 1
-    mvd     left, center
-    jmp     loop.find.next
-endlp.find:
-    mov     rt, -1
-    sub     cmp, 0
-    ifa     endif.grater_then_target
-    mvd     grater_then_target, backup
-    sub     backup, 1
-    ifae    token.over
-    mvd     less_then_target = backup
-    jmp     token.over
-endif.grater_then_target:
-    ifb     token.over
-    mvd     less_then_target, backup
-    add     backup, 1
-    sub     length, backup
-    ifa     token.over
-    mvd     grater_then_target, backup
-    jmp     token.over
-endif.not.found:
-    mov     rt, -1
-    mov     r1, -1
-    mov     r2, -1
-token.over:
-    ret
-```
-
-## # EIGHT PHASES OPERATION
-
-| OPC  | FUNC          | MODE                 | REG/IMM | REG/IMM |
-|------|---------------|----------------------|---------|---------|
-| 2bit | 3bit          | 3bit                 | 4bit    | 4bit    |
-|      | 000 : shl     | 000 : opc ra, rt, rb |         |         |
-|      | 001 : shr     | 001 : opc ra, rt, im |         |         |
-|      | 010 : shrc    | 010 : opc ra, rb, rt |         |         |
-|      | 011 : div     | 011 : opc ra, im, rt |         |         |
-|      | 100 : sub     | 100 : opc ra, ra, rb |         |         |
-|      | 101 : sbb     | 101 : opc ra, ra, im |         |         |
-|      | 110 : sub.f   | 110 : opc rt, ra, rb |         |         |
-|      | 111 : div.f   | 111 : opc rt, ra, im |         |         |
 </br>
 
-## # BITWISE OPERATION 
+## REGISTER FILE
+```C++
+/*
++--------------------+ +------------------------------------------+
+| gp-register  32bit | | sp-register                        32bit |
++------+-------------+ +---------+--------------------------------+
+| 00   | r0/rt       | | ip      | instruction pointer            |
+| 01   | r1          | | sp      | stack top pointer              |
+| 02   | r2          | | bp      | stack base pointer             |
+| 03   | r3          | | pcs     | program call stack             |
+| 04   | r4          | | sta     | program state                  |
+| 05   | r5          | | imm     | immediate number               |
+| 06   | r6          | | hig/rem | high 32bit product / remainder |
+| 07   | r7          | |         |                                |
+| 08   | r8          | |         |                                |
+| 09   | r9          | |         |                                |
+| 10   | ra          | | ...     | to be continue                 |
+| 11   | rb          | |         |                                |
+| 12   | rc          | |         |                                |
+| 13   | rd          | |         |                                |
+| 14   | re          | |         |                                |
+| 15   | rf          | |         |                                |
++------+-------------+ +---------+--------------------------------+
 
-| OPC  | FUNC          | MODE                   | REG     | REG/IMM |
-|------|---------------|------------------------|---------|---------|
-| 3bit | 3bit          | 2bit                   | 4bit    | 4bit    |
-|      | 000 : bt      | 00 : opc ra, ra, rb    |         |         |
-|      | 001 : bts     | 01 : opc ra, ra, im    |         |         |
-|      | 010 : btr     | 10 : opc ra, ra, im+16 |         |         |
-|      | 011 : btn     | 11 : opc rt, ra, rb    |         |         |
-|      | 100 : and     |                        |         |         |
-|      | 101 : or      |                        |         |         |
-|      | 110 : xor     |                        |         |         |
-|      | 111 : nand    |                        |         |         |
+              -         --------7
+            -         --------6 | 
+          -         --------5 | | 
+        -         --------4 | | | 
+      -         --------3 | | | | 
+    -         --------2 | | | | |
+  -         --------1 | | | | | |
++-------0 +-------0 | | | | | | |
+| r0/rt | | r8    | | | | | | | |
+| r1    | | r9    | | | | | | | |
+| r2    | | ra    | | | | | | | |
+| r3    | | rb    | | | | | | | |
+| r4    | | rc    | | | | | | | |
+| r5    | | rd    | | | | | | | 7
+| r6    | | re    | | | | | | 6 |
+| r7    | | rf    | | | | | 5 | |
++-------+ +-------+ | | | 4 | | |
+| 32bit | | 32bit | | | 3 | | | |
++-------+ +-------+ | 2 | | | | |
+| share | | group | 1 | | | | | -----------------------------------+
++-------+ +-------0 | | | | | ----------------------------+        |
+  |               | | | | | +--------------------+        |        |
+  | +-------------+ | | | +-------------+        |        |        |
+  | |        +------+ | +------+        |        |        |        |
+  | |        |        |        |        |        |        |        |
+  | |        |        |        |        |        |        |        |
+  +-|------+-|------+-|------+-|------+-|------+-|------+-|------+ |
+  | |      | |      | |      | |      | |      | |      | |      | |
+  V V      | |      | |      | |      | |      | |      | |      | |
+| .... |   | |      | |      | |      | |      | |      | |      | |
+| call +-+ v v      | |      | |      | |      | |      | |      | |
+| .... | | .... |   | |      | |      | |      | |      | |      | |
+         | call +-+ V V      | |      | |      | |      | |      | |
+         | .... | | .... |   | |      | |      | |      | |      | |
+                  | call +-+ V V      | |      | |      | |      | |
+                  | .... | | .... |   | |      | |      | |      | |
+                           | call +-+ V V      | |      | |      | |
+                           | .... | | .... |   | |      | |      | |
+                                    | call +-+ v v      | |      | |
+                                    | .... | | .... |   | |      | |
+                                             | call +-+ V V      | |
+                                             | .... | | .... |   | |
+                                                      | call +-+ V V
+                                                      | .... | | .... | 
+                                                               | call +- OV
+                                                               | .... | 
+
+*/
+```
 </br>
+
+## EIGHT PHASES OPERATION
+
+| OPC  | MODE                   | FUNC          | DESCRIPTION                   | REG/IMM | REG/IMM |
+|------|------------------------|---------------|-------------------------------|---------|---------|
+| 2bit | 3bit                   | 3bit          |                               | 4bit    | 4bit    |
+|      | 000 : opc ra, rt, rb   | 000 : shl     | shift left                    |         |         |
+|      | 001 : opc ra, rt, im   | 001 : shr     | shift right                   |         |         |
+|      | 010 : opc ra, rb, rt   | 010 : shrc    | shift right with carry        |         |         |
+|      | 011 : opc ra, im, rt   | 011 : div     | division                      |         |         |
+|      | 100 : opc ra, ra, rb   | 100 : sub     | subtraction                   |         |         |
+|      | 101 : opc ra, ra, im   | 101 : sbb     | subtraction with borrow       |         |         |
+|      | 110 : opc rt, ra, rb   | 110 : sub.f   | floating point subtraction    |         |         |
+|      | 111 : opc rt, ra, im   | 111 : div.f   | floating point division       |         |         |
+</br>
+
+## FOUR PHASES OPERATION
+
+| OPC  | MODE                   | FUNC          | DESCRIPTION                   | REG     | REG/IMM |
+|------|------------------------|---------------|-------------------------------|---------|---------|
+| 3bit | 2bit                   | 3bit          |                               | 4bit    | 4bit    |
+|      | 00 : opc ra, ra, rb    | 000 : add     | addition                      |         |         |
+|      | 01 : opc ra, ra, im    | 001 : adc     | addition with carry           |         |         |
+|      | 10 : opc rt, ra, rb    | 010 : mul     | multiplication                |         |         |
+|      | 11 : opc rt, ra, im    | 011 : -       | -                             |         |         |
+|      |                        | 100 : add.f   | floating point addition       |         |         |
+|      |                        | 101 : mul.f   | floating point multiplication |         |         |
+|      |                        | 110 : -       | -                             |         |         |
+|      |                        | 111 : -       | -                             |         |         |
+</br>
+
+## BITWISE OPERATION 
+
+| OPC  | MODE                   | FUNC          | DESCRIPTION                   | REG     | REG/IMM |
+|------|------------------------|---------------|-------------------------------|---------|---------|
+| 3bit | 2bit                   | 3bit          |                               | 4bit    | 4bit    |
+|      | 00 : opc ra, ra, im    | 000 : bt      | bit test                      |         |         |
+|      | 01 : opc ra, ra, im+16 | 001 : bts     | bit test and set              |         |         |
+|      | 10 : opc ra, ra, rb    | 010 : btr     | bit test and reset            |         |         |
+|      | 11 : opc rt, ra, rb    | 011 : btn     | bit test and inversion        |         |         |
+|      |                        | 100 : and     | bitwise and                   |         |         |
+|      |                        | 101 : or      | bitwise or                    |         |         |
+|      |                        | 110 : xor     | bitwise xor                   |         |         |
+|      |                        | 111 : nand    | bitwise nand                  |         |         |
 
 #### BITWISE MUX
-A0  = B1 ? ~A : A  
-A1  = B0 ? 32{1} : B  
-A2  = B0 ? 32{1} : A  
-A3  = B1 ? ~B : B  
-A4 = A0 & A1 | A2 & A3  
+C0  = B1 ? ~A : A  
+C1  = B0 ? 32{1} : B  
+C2  = B0 ? 32{1} : A  
+C3  = B1 ? ~B : B  
+C4 = C0 & C1 | C2 & C3  
 
 | FUNC  | EXPR                 | B1 | B0 |
 |-------|:--------------------:|:--:|:--:|
@@ -111,13 +228,20 @@ A4 = A0 & A1 | A2 & A3
 | or    | A \| B               | 0  | 1  |
 | xor   | A & B                | 1  | 0  |
 | nand  | ~(A & B) -> ~A \| ~B | 1  | 1  |
-
 </br>
 
-## # LOAD BASED ON BP
+## BP-BASED LOAD
 
->note:  
+| OPC  | FUNC                        | SIZE       | REG     | IMM     |
+|------|-----------------------------|------------|---------|---------|
+| 4bit | 1bit                        | 2bit       | 4bit    | 5bit    |
+|      | 0 : ldb.u ldw.u ldd.u ldq.u | 00 : byte  |         |         |
+|      | 1 : ldb.i ldw.i ldd.i ldq.i | 01 : word  |         |         |
+|      |                             | 10 : dword |         |         |
+|      |                             | 11 : qword |         |         |
+note:  
 bp(stack base pointer) as the byte/word/dword/qword pointer, offset step is 1/2/4/8
+
 
 ```C++
 void ldb(){
@@ -155,18 +279,9 @@ void ldx(){
 ...
 ```
 
-| OPC  | FUNC                        | SIZE       | REG     | IMM     |
-|------|-----------------------------|------------|---------|---------|
-| 4bit | 1bit                        | 2bit       | 4bit    | 5bit    |
-|      | 0 : ldb.u ldw.u ldd.u ldq.u | 00 : byte  |         |         |
-|      | 1 : ldb.i ldw.i ldd.i ldq.i | 01 : word  |         |         |
-|      |                             | 10 : dword |         |         |
-|      |                             | 11 : qword |         |         |
 </br>
 
-## # LOAD BASED ON GENERAL-PURPOSE REGISTER
->note:  
-the source register as the byte/word/dword/qword base pointer, offset step is 1/2/4/8
+## GENERAL-PURPOSE REGISTER-BASED LOAD
 
 | OPC  | FUNC                        | SIZE       | REG     | REG     | PLUS REG-T                |
 |------|-----------------------------|------------|---------|---------|---------------------------|
@@ -175,93 +290,88 @@ the source register as the byte/word/dword/qword base pointer, offset step is 1/
 |      | 1 : ldb.i ldw.i ldd.i ldq.i | 01 : word  |         |         | 1 : ldx reg, reg[im + rt] |
 |      |                             | 10 : dword |         |         |                           |
 |      |                             | 11 : qword |         |         |                           |
+note:  
+the source register as the byte/word/dword/qword base pointer, offset step is 1/2/4/8
+
 </br>
 
-## # STORE BASED ON BP
+## BP-BASED STORE
+
 | OPC  | FUNC                | SIZE       | REG     | IMM     |
 |------|---------------------|------------|---------|---------|
 | 4bit | 1bit                | 2bit       | 4bit    | 5bit    |
-|      | 0 : stb ldw ldd ldq | 00 : byte  |         |         |
+|      | 0 : stb stw std stq | 00 : byte  |         |         |
 |      |                     | 01 : word  |         |         |
 |      |                     | 10 : dword |         |         |
 |      |                     | 11 : qword |         |         |
 </br>
 
-## # STORE BASED ON GENERAL-PURPOSE REGISTER
-| OPC  | FUNC                        | SIZE       | REG     | REG     | PLUS REG-T                |
-|------|-----------------------------|------------|---------|---------|---------------------------|
-| 4bit | 1bit                        | 2bit       | 4bit    | 4bit    | 1bit                      |
-|      | 1 : stb.u stw.u std.u stq.u | 00 : byte  |         |         | 0 : stx reg, reg[im]      |
-|      |                             | 01 : word  |         |         | 1 : stx reg, reg[im + rt] |
-|      |                             | 10 : dword |         |         |                           |
-|      |                             | 11 : qword |         |         |                           |
+## GENERAL-PURPOSE REGISTER-BASED STORE
+
+| OPC  | FUNC                | SIZE       | REG     | REG     | PLUS REG-T                |
+|------|---------------------|------------|---------|---------|---------------------------|
+| 4bit | 1bit                | 2bit       | 4bit    | 4bit    | 1bit                      |
+|      | 1 : stb stw std stq | 00 : byte  |         |         | 0 : stx reg, reg[im]      |
+|      |                     | 01 : word  |         |         | 1 : stx reg, reg[im + rt] |
+|      |                     | 10 : dword |         |         |                           |
+|      |                     | 11 : qword |         |         |                           |
 </br>
 
-## # FOUR PHASES OPERATION
-| OPC  | FUNC          | MODE                 | REG     | REG/IMM |
-|------|---------------|----------------------|---------|---------|
-| 2bit | 3bit          | 2bit                 | 4bit    | 4bit    |
-|      | 000 : add     | 00 : opc ra, ra, rb  |         |         |
-|      | 001 : adc     | 01 : opc ra, ra, im  |         |         |
-|      | 010 : mul     | 10 : opc rt, ra, rb  |         |         |
-|      | 011 : -       | 11 : opc rt, ra, im  |         |         |
-|      | 100 : add.f   |                      |         |         |
-|      | 101 : mul.f   |                      |         |         |
-|      | 110 : -       |                      |         |         |
-|      | 111 : -       |                      |         |         |
+## IMM-BASED OPERATION
+#### PUSH IMM
+| OPC  | FUNC | DESCRIPTION                    | IMM                 |
+|------|------|--------------------------------|---------------------|
+| 4bit | imm  | build a immediate number       | 12bit               |
+
+note:  
+a long immediate number will split into several consecutive imm instruction
+```C++
+/*
+imm  0x567
+imm  0x234
+call 0x01        -> call 0x01234567
+
+imm  0x000
+add  ra, ra, 0x1 -> add ra, ra, 0x1000
+*/
+```
+
+#### CONDITION BRANCH
+| OPC  | FUNC                | CONDITION                      | IMM     |
+|------|---------------------|--------------------------------|---------|
+| 4bit | 3bit                |                                | 9bit    |
+|      | 000 : ifeq/ifzr     | equal or zero                  | signed  |
+|      | 001 : ifne/ifnz     | not equal or not zero          | signed  |
+|      | 010 : ifa           | above                          | signed  |
+|      | 011 : ifae          | above equal                    | signed  |
+|      | 100 : ifcf/ifov     | carry or overflow              | signed  |
+|      | 101 : ifnc/ifno     | not carry or not overflow      | signed  |
+|      | 110 : ifuo          | under overflow                 | signed  |
+|      | 111 : ifdo          | up overflow                    | signed  |
+note:  
+ip += imm(signed) * 2(two bytes/instruction) when not match condition
+
+</br>
 </br>
 
-## # CONDITION BRANCH
-| OPC  | FUNC        | TYPE           | IMM     |
-|------|-------------|----------------|---------|
-| 4bit | 3bit        | 1bit           | 8bit    |
-|      | 000 : eq/zr | 0 : if   block |         |
-|      | 001 : ne/nz | 1 : elif block |         |
-|      | 010 : a     |                |         |
-|      | 011 : ae    |                |         |
-|      | 100 : cf/ov |                |         |
-|      | 101 : nc/no |                |         |
-|      | 110 : uo    |                |         |
-|      | 111 : do    |                |         |
+#### ADVANCED
+| OPC  | FUNC                | DESCRIPTION                    | IMM     |
+|------|---------------------|--------------------------------|---------|
+| 4bit | 3bit                |                                | 9bit    |
+|      | 000 : jmp           | ip relatived jump              | signed  |
+|      | 001 : call          | call sub-procedure             | unsigned|
+|      | 010 : spa           | allocation memory from stack   | unsigned|
+|      | 011 : -             |                                |         |
+|      | 100 : -             |                                |         |
+|      | 101 : -             |                                |         |
+|      | 110 : -             |                                |         |
+|      | 111 : -             |                                |         |
+
 </br>
-
-1/16
-OPC     FUNC IF/ELSE IMM
-4       3    1       8
-        |    |
-        |    +-000:if block
-        |    +-001:else block
-        +------000:e/z      equal/zero
-        +------001:ne/nz    not equal/zero
-        +------010:a        above
-        +------011:ae       above equal
-        +------100:c/ov     carry/overflow
-        +------101:nc/nov   not carry/overflow
-        +------110:uo       up overflow
-        +------111:do       down overflow
-
-note:
-pc(program pointer) += imm(unsigned) * 2(bytes per instruction) when match condition
-
-
-if (condition-a){
-    if (condition-b){
-
-    }
-}
-else if (condition-c) {
-
-}
-else{
-
-}
-
-
-rest:2/8
 
 1/16
 OPC     FUNC IMM
-4       2    10
+4       2    9
         |
         +-00:jmp            jump to
         +-01:call           call sub procedue
@@ -319,3 +429,14 @@ OPC     FUNC
         |
         +-0000:ret
         +-0001:bpsp         bp = sp
+
+1/4
+1/8
+1/8
+1/16
+1/16
+1/16 = 1/32 + 1/32
+1/16
+
+
+rest:1/4
