@@ -99,26 +99,52 @@
 ## REGISTER FILE
 ```C++
 /*
-+--------------------+ +------------------------------------------+
-| gp-register  32bit | | sp-register                        32bit |
-+------+-------------+ +---------+--------------------------------+
-| 00   | r0/rt       | | ip      | instruction pointer            |
-| 01   | r1          | | sp      | stack top pointer              |
-| 02   | r2          | | bp      | stack base pointer             |
-| 03   | r3          | | pcs     | program call stack             |
-| 04   | r4          | | sta     | program state                  |
-| 05   | r5          | | imm     | immediate number               |
-| 06   | r6          | | hig/rem | high 32bit product / remainder |
-| 07   | r7          | |         |                                |
-| 08   | r8          | |         |                                |
-| 09   | r9          | |         |                                |
-| 10   | ra          | | ...     | to be continue                 |
-| 11   | rb          | |         |                                |
-| 12   | rc          | |         |                                |
-| 13   | rd          | |         |                                |
-| 14   | re          | |         |                                |
-| 15   | rf          | |         |                                |
-+------+-------------+ +---------+--------------------------------+
++-----------------------------------------------+
+| gp-register                             32bit |
++----+---------+--------------------------------+
+| id | name    | description                    |
++----+---------+--------------------------------+
+| 00 | r0/rt   |                                |
+| 01 | r1      |                                |
+| 02 | r2      |                                |
+| 03 | r3      |                                |
+| 04 | r4      |                                |
+| 05 | r5      |                                |
+| 06 | r6      |                                |
+| 07 | r7      |                                |
+|===============================================|
+| 08 | r8      |                                |
+| 09 | r9      |                                |
+| 10 | ra      |                                |
+| 11 | rb      |                                |
+| 12 | rc      |                                |
+| 13 | rd      |                                |
+| 14 | re      |                                |
+| 15 | rf      |                                |
++----+---------+--------------------------------+
+
++-----------------------------------------------+
+| sp-register                             32bit |
++----+---------+--------------------------------+
+| id | name    | description                    |
++----+---------+--------------------------------+
+| 00 | pcs     | program call stack             |
+| 01 | ip      | instruction pointer            |
+| 02 | bp      | stack base pointer             |
+| 03 | sp      | stack top pointer              |
+| 04 |         |                                |
+| 05 |         |                                |
+| 06 |         |                                |
+| 07 |         |                                |
+| 08 | sta     | program state                  |
+| 09 | imm     | immediate number               |
+| 10 | hig/rem | high 32bit product / remainder |
+| 11 |         |                                |
+| 12 |         |                                |
+| 13 |         |                                |
+| 14 |         |                                |
+| 15 | ...     | to be continue                 |
++----+---------+--------------------------------+
 
               -         --------7
             -         --------6 | 
@@ -176,7 +202,7 @@
 | OPC  | MODE                   | FUNC          | DESCRIPTION                   | REG/IMM | REG/IMM |
 |------|------------------------|---------------|-------------------------------|---------|---------|
 | 2bit | 3bit                   | 3bit          |                               | 4bit    | 4bit    |
-|      | 000 : opc ra, rt, rb   | 000 : shl     | shift left                    |         |         |
+| 00   | 000 : opc ra, rt, rb   | 000 : shl     | shift left                    |         |         |
 |      | 001 : opc ra, rt, im   | 001 : shr     | shift right                   |         |         |
 |      | 010 : opc ra, rb, rt   | 010 : shrc    | shift right with carry        |         |         |
 |      | 011 : opc ra, im, rt   | 011 : div     | division                      |         |         |
@@ -191,36 +217,23 @@
 | OPC  | MODE                   | FUNC          | DESCRIPTION                   | REG     | REG/IMM |
 |------|------------------------|---------------|-------------------------------|---------|---------|
 | 3bit | 2bit                   | 3bit          |                               | 4bit    | 4bit    |
-|      | 00 : opc ra, ra, rb    | 000 : add     | addition                      |         |         |
-|      | 01 : opc ra, ra, im    | 001 : adc     | addition with carry           |         |         |
-|      | 10 : opc rt, ra, rb    | 010 : mul     | multiplication                |         |         |
-|      | 11 : opc rt, ra, im    | 011 : -       | -                             |         |         |
-|      |                        | 100 : add.f   | floating point addition       |         |         |
-|      |                        | 101 : mul.f   | floating point multiplication |         |         |
-|      |                        | 110 : -       | -                             |         |         |
-|      |                        | 111 : -       | -                             |         |         |
+| 010  | 00 : opc ra, ra, rb    | 000 : and     | bitwise and                   |         |         |
+|      | 01 : opc ra, ra, im    | 001 : or      | bitwise or                    |         |         |
+|      | 10 : opc rt, ra, rb    | 010 : xor     | bitwise xor                   |         |         |
+|      | 11 : opc rt, ra, im    | 011 : mul     | multiplication                |         |         |
+|      |                        | 100 : add     | addition                      |         |         |
+|      |                        | 101 : adc     | addition with carry           |         |         |
+|      |                        | 110 : add.f   | floating point addition       |         |         |
+|      |                        | 111 : mul.f   | floating point multiplication |         |         |
 </br>
 
-## BITWISE OPERATION 
-
-| OPC  | MODE                   | FUNC          | DESCRIPTION                   | REG     | REG/IMM |
-|------|------------------------|---------------|-------------------------------|---------|---------|
-| 3bit | 2bit                   | 3bit          |                               | 4bit    | 4bit    |
-|      | 00 : opc ra, ra, im    | 000 : bt      | bit test                      |         |         |
-|      | 01 : opc ra, ra, im+16 | 001 : bts     | bit test and set              |         |         |
-|      | 10 : opc ra, ra, rb    | 010 : btr     | bit test and reset            |         |         |
-|      | 11 : opc rt, ra, rb    | 011 : btn     | bit test and inversion        |         |         |
-|      |                        | 100 : and     | bitwise and                   |         |         |
-|      |                        | 101 : or      | bitwise or                    |         |         |
-|      |                        | 110 : xor     | bitwise xor                   |         |         |
-|      |                        | 111 : nand    | bitwise nand                  |         |         |
-
 #### BITWISE MUX
-C0  = B1 ? ~A : A  
-C1  = B0 ? 32{1} : B  
-C2  = B0 ? 32{1} : A  
-C3  = B1 ? ~B : B  
+C0 = B1 ? ~A : A  
+C1 = B0 ? 32{1} : B  
+C2 = B0 ? 32{1} : A  
+C3 = B1 ? ~B : B  
 C4 = C0 & C1 | C2 & C3  
+RA = ~RB <=> RA = 1 - RB
 
 | FUNC  | EXPR                 | B1 | B0 |
 |-------|:--------------------:|:--:|:--:|
@@ -228,14 +241,29 @@ C4 = C0 & C1 | C2 & C3
 | or    | A \| B               | 0  | 1  |
 | xor   | A & B                | 1  | 0  |
 | nand  | ~(A & B) -> ~A \| ~B | 1  | 1  |
+
 </br>
+
+## BIT OPERATION 
+
+| OPC  | MODE                   | FUNC          | DESCRIPTION                   | REG     | REG/IMM |
+|------|------------------------|---------------|-------------------------------|---------|---------|
+| 3bit | 2bit                   | 3bit          |                               | 4bit    | 4bit    |
+| 011  | 00 : opc ra, ra, im    | 000 : bt      | bit test                      |         |         |
+|      | 01 : opc ra, ra, im+16 | 001 : bts     | bit test and set              |         |         |
+|      | 10 : opc ra, ra, rb    | 010 : btr     | bit test and reset            |         |         |
+|      | 11 : opc rt, ra, rb    | 011 : btn     | bit test and inversion        |         |         |
+|      |                        | 100 : -       |                               |         |         |
+|      |                        | 101 : -       |                               |         |         |
+|      |                        | 110 : -       |                               |         |         |
+|      |                        | 111 : -       |                               |         |         |
 
 ## BP-BASED LOAD
 
 | OPC  | FUNC                        | SIZE       | REG     | IMM     |
 |------|-----------------------------|------------|---------|---------|
 | 4bit | 1bit                        | 2bit       | 4bit    | 5bit    |
-|      | 0 : ldb.u ldw.u ldd.u ldq.u | 00 : byte  |         |         |
+| 1000 | 0 : ldb.u ldw.u ldd.u ldq.u | 00 : byte  |         |         |
 |      | 1 : ldb.i ldw.i ldd.i ldq.i | 01 : word  |         |         |
 |      |                             | 10 : dword |         |         |
 |      |                             | 11 : qword |         |         |
@@ -283,13 +311,13 @@ void ldx(){
 
 ## GENERAL-PURPOSE REGISTER-BASED LOAD
 
-| OPC  | FUNC                        | SIZE       | REG     | REG     | PLUS REG-T                |
-|------|-----------------------------|------------|---------|---------|---------------------------|
-| 4bit | 1bit                        | 2bit       | 4bit    | 4bit    | 1bit                      |
-|      | 0 : ldb.u ldw.u ldd.u ldq.u | 00 : byte  |         |         | 0 : ldx reg, reg[im]      |
-|      | 1 : ldb.i ldw.i ldd.i ldq.i | 01 : word  |         |         | 1 : ldx reg, reg[im + rt] |
-|      |                             | 10 : dword |         |         |                           |
-|      |                             | 11 : qword |         |         |                           |
+| OPC    | FUNC                        | SIZE       | REG     | REG     | PLUS REG-T                |
+|--------|-----------------------------|------------|---------|---------|---------------------------|
+| 4bit   | 1bit                        | 2bit       | 4bit    | 4bit    | 1bit                      |
+| 1001   | 0 : ldb.u ldw.u ldd.u ldq.u | 00 : byte  |         |         | 0 : ldx reg, reg[im]      |
+|        | 1 : ldb.i ldw.i ldd.i ldq.i | 01 : word  |         |         | 1 : ldx reg, reg[im + rt] |
+|        |                             | 10 : dword |         |         |                           |
+|        |                             | 11 : qword |         |         |                           |
 note:  
 the source register as the byte/word/dword/qword base pointer, offset step is 1/2/4/8
 
@@ -297,31 +325,95 @@ the source register as the byte/word/dword/qword base pointer, offset step is 1/
 
 ## BP-BASED STORE
 
-| OPC  | FUNC                | SIZE       | REG     | IMM     |
-|------|---------------------|------------|---------|---------|
-| 4bit | 1bit                | 2bit       | 4bit    | 5bit    |
-|      | 0 : stb stw std stq | 00 : byte  |         |         |
-|      |                     | 01 : word  |         |         |
-|      |                     | 10 : dword |         |         |
-|      |                     | 11 : qword |         |         |
+| OPC    | FUNC                | SIZE       | REG     | IMM     |
+|--------|---------------------|------------|---------|---------|
+| 5bit   |                     | 2bit       | 4bit    | 5bit    |
+| 10100  | stb stw std stq     | 00 : byte  |         |         |
+|        |                     | 01 : word  |         |         |
+|        |                     | 10 : dword |         |         |
+|        |                     | 11 : qword |         |         |
 </br>
 
 ## GENERAL-PURPOSE REGISTER-BASED STORE
 
-| OPC  | FUNC                | SIZE       | REG     | REG     | PLUS REG-T                |
-|------|---------------------|------------|---------|---------|---------------------------|
-| 4bit | 1bit                | 2bit       | 4bit    | 4bit    | 1bit                      |
-|      | 1 : stb stw std stq | 00 : byte  |         |         | 0 : stx reg, reg[im]      |
-|      |                     | 01 : word  |         |         | 1 : stx reg, reg[im + rt] |
-|      |                     | 10 : dword |         |         |                           |
-|      |                     | 11 : qword |         |         |                           |
+| OPC    | FUNC                | SIZE       | REG     | REG     | PLUS REG-T                |
+|--------|---------------------|------------|---------|---------|---------------------------|
+| 5bit   |                     | 2bit       | 4bit    | 4bit    | 1bit                      |
+| 10101  | stb stw std stq     | 00 : byte  |         |         | 0 : stx reg, reg[im]      |
+|        |                     | 01 : word  |         |         | 1 : stx reg, reg[im + rt] |
+|        |                     | 10 : dword |         |         |                           |
+|        |                     | 11 : qword |         |         |                           |
 </br>
 
-## IMM-BASED OPERATION
-#### PUSH IMM
-| OPC  | FUNC | DESCRIPTION                    | IMM                 |
-|------|------|--------------------------------|---------------------|
-| 4bit | imm  | build a immediate number       | 12bit               |
+## CONDITION BRANCH
+
+| OPC    | FUNC                | CONDITION                      | IMM     |
+|--------|---------------------|--------------------------------|---------|
+| 4bit   | 3bit                |                                | 9bit    |
+| 1011   | 000 : ifeq/ifzr     | equal or zero                  | signed  |
+|        | 001 : ifne/ifnz     | not equal or not zero          | signed  |
+|        | 010 : ifa           | above                          | signed  |
+|        | 011 : ifae          | above equal                    | signed  |
+|        | 100 : ifcf/ifov     | carry or overflow              | signed  |
+|        | 101 : ifnc/ifno     | not carry or not overflow      | signed  |
+|        | 110 : ifuo          | under overflow                 | signed  |
+|        | 111 : ifdo          | up overflow                    | signed  |
+note:  
+ip += imm(signed) * 2(two bytes/instruction) when not match condition
+
+</br>
+
+## EDITION
+
+| OPC    | FUNC                | DESCRIPTION                    | IMM     |
+|--------|---------------------|--------------------------------|---------|
+| 4bit   | 3bit                |                                | 9bit    |
+| 1100   | 000 : jmp           | ip relatived jump              | signed  |
+|        | 001 : call          | call sub-procedure             | unsigned|
+|        | 010 : spa           | allocation memory from stack   | unsigned|
+|        | 011 : -             |                                |         |
+|        | 100 : -             |                                |         |
+|        | 101 : -             |                                |         |
+|        | 110 : -             |                                |         |
+|        | 111 : -             |                                |         |
+
+</br>
+
+## MULTI-ASSIGN
+
+| OPC    | FUNC | BANK                            | R/I               | MASK | REG/IMM |
+|--------|------|---------------------------------|-------------------|------|---------|
+| 5bit   |      | 2bit                            | 1bit              | 4bit | 4bit    |
+| 11010  | bdc  | 00 : MASK indicated the r0 ~ r3 | 0 : source is reg |      |         |
+|        |      | 01 : MASK indicated the r4 ~ r7 | 1 : source is imm |      |         |
+|        |      | 10 : MASK indicated the r8 ~ rb |                   |      |         |
+|        |      | 11 : MASK indicated the rc ~ rf |                   |      |         |
+```C++
+/*
+bdc r1, { r0, r2, r3 }      -> r0 = r2 = r3 = r1
+bdc r2, { r4, r6, r7 }      -> r4 = r6 = r7 = r2
+bdc -1, { r8, r9, ra, rb }  -> r8 = r9 = ra = rb = -1
+*/
+```
+</br>
+
+## USEFUL BITWISE OPERATION
+
+| OPC    | FUNC        | description             | REG  | REG  |
+|--------|-------------|-------------------------|------|------|
+| 6bit   | 2bit        |                         | 4bit | 4bit |
+| 111000 | 00 : fis    | first index of set bit  |      |      |
+|        | 01 : lis    | last index of set bit   |      |      |
+|        | 10 : lzc    | leading zero count      |      |      |
+|        | 11 : sbc    | set bit count           |      |      |
+</br>
+
+## BUILD IMM
+
+| OPC  | FUNC | DESCRIPTION              | IMM   |
+|------|------|--------------------------|-------|
+| 4bit |      |                          | 12bit |
+| 1111 | imm  | build a immediate number |       |
 
 note:  
 a long immediate number will split into several consecutive imm instruction
@@ -335,72 +427,6 @@ imm  0x000
 add  ra, ra, 0x1 -> add ra, ra, 0x1000
 */
 ```
-
-#### CONDITION BRANCH
-| OPC  | FUNC                | CONDITION                      | IMM     |
-|------|---------------------|--------------------------------|---------|
-| 4bit | 3bit                |                                | 9bit    |
-|      | 000 : ifeq/ifzr     | equal or zero                  | signed  |
-|      | 001 : ifne/ifnz     | not equal or not zero          | signed  |
-|      | 010 : ifa           | above                          | signed  |
-|      | 011 : ifae          | above equal                    | signed  |
-|      | 100 : ifcf/ifov     | carry or overflow              | signed  |
-|      | 101 : ifnc/ifno     | not carry or not overflow      | signed  |
-|      | 110 : ifuo          | under overflow                 | signed  |
-|      | 111 : ifdo          | up overflow                    | signed  |
-note:  
-ip += imm(signed) * 2(two bytes/instruction) when not match condition
-
-</br>
-</br>
-
-#### ADVANCED
-| OPC  | FUNC                | DESCRIPTION                    | IMM     |
-|------|---------------------|--------------------------------|---------|
-| 4bit | 3bit                |                                | 9bit    |
-|      | 000 : jmp           | ip relatived jump              | signed  |
-|      | 001 : call          | call sub-procedure             | unsigned|
-|      | 010 : spa           | allocation memory from stack   | unsigned|
-|      | 011 : -             |                                |         |
-|      | 100 : -             |                                |         |
-|      | 101 : -             |                                |         |
-|      | 110 : -             |                                |         |
-|      | 111 : -             |                                |         |
-
-</br>
-
-1/16
-OPC     FUNC IMM
-4       2    9
-        |
-        +-00:jmp            jump to
-        +-01:call           call sub procedue
-        +-10:imm            load imm
-        +-11:spa            alloction memory from stack, let sp plus the imm * 4(dword per cell) number
-
-note:
-
-
-1/64
-OPC     FUNC REG-W REG-R
-6       2    4   4
-        |
-        +-00:fis            first index of set bit
-        +-01:lis            last index of set bit
-        +-10:lzc            leading zero count
-        +-11:sbc            set bit count
-
-1/64
-OPC     BANK IMM-WX, REG-R
-6       2    4       4
-        |
-        +-00:bdc reg, { r0, r1, r2, r3 }
-        +-01:bdc reg, { r4, r5, r6, r7 }
-        +-10:bdc reg, { r8, r9, ra, rb }
-        +-11:bdc reg, { rc, rd, re, rf }
-note:
-broadcast(bdc) instruction
-bdc r9, { rt, r1, r3 } <=> rt = r1 = r3 = r9
 
 1/64
 OPC     FUNC IMM-A IMM-B
