@@ -35,15 +35,15 @@
             r6.i    value
         )
             start   left
-            r8      backup
             r9      cmp
             ra      center
             rb      right
 
             sub     rt, start, length
-            ifnae   endif.not.found
-            mvd     right, length
-            mvd     center, length
+            ifae    endif.not.found
+            bdc     rt, grater_then_target, less_then_target, -1
+        endif.not.found:
+            bdc     right, center, length
             shr     center, 1
             sub     right, 1
             jmp     loop.find.body
@@ -53,8 +53,7 @@
         loop.find.body:
             sub     rt, right, left
             ifa     endlp.find
-            mvd     rt, center
-            mvd     backup, center
+            bdc     rt, less_then_target, grater_then_target, center
             ldd.u   rt, sequence[rt]
             sub     cmp, rt, value
             ife     endif.match
@@ -70,28 +69,69 @@
             mvd     left, center
             jmp     loop.find.next
         endlp.find:
-            mov     rt, -1
             sub     cmp, 0
             ifa     endif.grater_then_target
-            mvd     grater_then_target, backup
-            sub     backup, 1
-            ifae    token.over
-            mvd     less_then_target = backup
+            sub     less_then_target, 1; maybe -1 when (grater_then_target) is 0
             jmp     token.over
         endif.grater_then_target:
-            ifb     token.over
-            mvd     less_then_target, backup
-            add     backup, 1
-            sub     length, backup
-            ifa     token.over
-            mvd     grater_then_target, backup
-            jmp     token.over
-        endif.not.found:
-            mov     rt, -1
-            mov     r1, -1
-            mov     r2, -1
+            add     grater_then_target, 1
+            sub     rt, grater_then_target, length
+            ifae    token.over
+            mov     grater_then_target, -1
         token.over:
+            mov     rt, -1
             ret
+
+            MIXC MICRO
+划清界限=======================================================================================
+            ARM  THUMB
+2001dc: b5f0      	push	{r4, r5, r6, r7, lr}
+2001de: 429a      	cmp	r2, r3
+2001e0: f04f 34ff 	mov.w	r4, #4294967295	; 0xffffffff
+2001e4: 6004      	str	r4, [r0, #0]
+2001e6: 6044      	str	r4, [r0, #4]
+2001e8: 6084      	str	r4, [r0, #8]
+2001ea: f8dd e014 	ldr.w	lr, [sp, #20]
+2001ee: da27      	bge.n	200240 <_Z13binary_searchPiiii+0x64>
+2001f0: 191f      	adds	r7, r3, r4
+2001f2: 42ba      	cmp	r2, r7
+2001f4: ea4f 0663 	mov.w	r6, r3, asr #1
+2001f8: dd07      	ble.n	20020a <_Z13binary_searchPiiii+0x2e>
+2001fa: e024      	b.n	200246 <_Z13binary_searchPiiii+0x6a>
+2001fc: 1e77      	subs	r7, r6, #1
+2001fe: 19d5      	adds	r5, r2, r7
+200200: 42ba      	cmp	r2, r7
+200202: ea4f 0565 	mov.w	r5, r5, asr #1
+200206: dc0d      	bgt.n	200224 <_Z13binary_searchPiiii+0x48>
+200208: 462e      	mov	r6, r5
+20020a: f851 4026 	ldr.w	r4, [r1, r6, lsl #2]
+20020e: ebce 0404 	rsb	r4, lr, r4
+200212: 2c00      	cmp	r4, #0
+200214: dcf2      	bgt.n	2001fc <_Z13binary_searchPiiii+0x20>
+200216: d014      	beq.n	200242 <_Z13binary_searchPiiii+0x66>
+200218: 1c72      	adds	r2, r6, #1
+20021a: 19d5      	adds	r5, r2, r7
+20021c: 42ba      	cmp	r2, r7
+20021e: ea4f 0565 	mov.w	r5, r5, asr #1
+200222: ddf1      	ble.n	200208 <_Z13binary_searchPiiii+0x2c>
+200224: 2c00      	cmp	r4, #0
+200226: dd05      	ble.n	200234 <_Z13binary_searchPiiii+0x58>
+200228: 2e00      	cmp	r6, #0
+20022a: 6086      	str	r6, [r0, #8]
+20022c: dd08      	ble.n	200240 <_Z13binary_searchPiiii+0x64>
+20022e: 3e01      	subs	r6, #1
+200230: 6046      	str	r6, [r0, #4]
+200232: bdf0      	pop	{r4, r5, r6, r7, pc}
+200234: d004      	beq.n	200240 <_Z13binary_searchPiiii+0x64>
+200236: 1c72      	adds	r2, r6, #1
+200238: 4293      	cmp	r3, r2
+20023a: 6046      	str	r6, [r0, #4]
+20023c: bfc8      	it	gt
+20023e: 6082      	strgt	r2, [r0, #8]
+200240: bdf0      	pop	{r4, r5, r6, r7, pc}
+200242: 6006      	str	r6, [r0, #0]
+200244: bdf0      	pop	{r4, r5, r6, r7, pc}
+200246: bdf0      	pop	{r4, r5, r6, r7, pc}
 */
 ```
 </br>
@@ -393,9 +433,9 @@ ip += imm(signed) * 2(two bytes/instruction) when not match condition
 |        |      | 11 : MASK indicated the rc ~ rf |                   |      |         |
 ```C++
 /*
-bdc r1, { r0, r2, r3 }      -> r0 = r2 = r3 = r1
-bdc r2, { r4, r6, r7 }      -> r4 = r6 = r7 = r2
-bdc -1, { r8, r9, ra, rb }  -> r8 = r9 = ra = rb = -1
+bdc { r0, r2, r3 }, r1      -> r0 = r2 = r3 = r1
+bdc { r4, r6, r7 }, r2      -> r4 = r6 = r7 = r2
+bdc { r8, r9, ra, rb }, -1  -> r8 = r9 = ra = rb = -1
 */
 ```
 </br>
