@@ -193,14 +193,19 @@ C4 = C0 & C1 | C2 & C3
 |        | 1001 : ifno            | not overflow               | signed   |
 |        | 1010 : ifpo            | positive overflow          | signed   |
 |        | 1011 : ifnp            | not positive overflow      | signed   |
+
+note:  
+overflow = positive overflow or negative overflow(leave out).  
+ip += imm(signed) * 2(two bytes/instruction) when not match condition.  
+
+| OPC    | FUNC                   | DESCRIPTION                | IMM      |
+|--------|------------------------|----------------------------|----------|
+| 4bit   | 4bit                   |                            | 8bit     |
 |        | 1100 : jmp             | ip relatived jump          | signed   |
 |        | 1101 : psh             | push imm to stack          | signed   |
 |        | 1110 : spm             | stack memory               | signed   |
 |        | 1111 : call            | call sub-procedure         | unsigned |
 
-note:  
-overflow = positive overflow or negative overflow(leave out).  
-ip += imm(signed) * 2(two bytes/instruction) when not match condition.  
 </br>
 
 ## BIT OPERATION 
