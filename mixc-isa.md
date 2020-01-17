@@ -194,7 +194,6 @@ C4 = C0 & C1 | C2 & C3
 |        | 1010 : ifpo            | positive overflow          | signed   |
 |        | 1011 : ifnp            | not positive overflow      | signed   |
 |        | 1100 : jmp             | ip relatived jump          | signed   |
-| __OPC__| __FUNC__               | __DESCRIPTION__            | __IMM__  |
 |        | 1101 : psh             | push imm to stack          | signed   |
 |        | 1110 : spm             | stack memory               | signed   |
 |        | 1111 : call            | call sub-procedure         | unsigned |
@@ -331,8 +330,12 @@ bdc r8, r9, ra, rb, -1  -> r8 = r9 = ra = rb = -1
 |        | 011 : pop   | pop the specified range reg  |         |         |
 |        | 100 : swp   | swap content between two reg |         |         |
 |        | 101 : -     |                              |         |         |
-| __OPC__| __FUNC__    | __DESCRIPTION__              | __REG__ | __IMM__ |
-| 10111  | 110 : lck   | sync                         |         |         |
+</br>
+
+| OPC    | FUNC        | DESCRIPTION                  | REG     | IMM     |
+|--------|-------------|------------------------------|---------|---------|
+| 5bit   | 3bit        |                              | 4bit    | 4bit    |
+| 10111  | 110 : lck   | syncsynchronization          |         |         |
 
 note:  
 __lck__ instruction can hang-up the maskable interrupt while processor run in the locked range, but the processor still need handle the interrupt while executed over 16 instructions or exit the locked area.
