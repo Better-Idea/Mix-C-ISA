@@ -273,7 +273,7 @@ C1 = B0 ? 32{1} : B
 C2 = B0 ? 32{1} : A  
 C3 = B1 ? ~B : B  
 C4 = C0 & C1 | C2 & C3  
-RA = ~RB <=> RA = 1 - RB
+RA = ~RB <=> RA = -1 - RB
 
 | FUNC  | EXPR                 | B1 | B0 |
 |-------|:--------------------:|:--:|:--:|
@@ -433,9 +433,9 @@ ip += imm(signed) * 2(two bytes/instruction) when not match condition
 |        |      | 11 : MASK indicated the rc ~ rf |                   |      |         |
 ```C++
 /*
-bdc { r0, r2, r3 }, r1      -> r0 = r2 = r3 = r1
-bdc { r4, r6, r7 }, r2      -> r4 = r6 = r7 = r2
-bdc { r8, r9, ra, rb }, -1  -> r8 = r9 = ra = rb = -1
+bdc r0, r2, r3, r1      -> r0 = r2 = r3 = r1
+bdc r4, r6, r7, r2      -> r4 = r6 = r7 = r2
+bdc r8, r9, ra, rb, -1  -> r8 = r9 = ra = rb = -1
 */
 ```
 </br>
